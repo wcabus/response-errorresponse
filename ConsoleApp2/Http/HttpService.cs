@@ -33,9 +33,8 @@ namespace ConsoleApp2.Http
                 content = await response.Content.ReadAsStringAsync()
                     .ConfigureAwait(false);
 
-                return response.IsSuccessStatusCode
-                    ? FormResponseForJson<T>(response.StatusCode, content)
-                    : new ErrorResponse<T>(response.StatusCode, content);
+                response.EnsureSuccessStatusCode();
+                return FormResponseForJson<T>(response.StatusCode, content);
             }
             catch (Exception e)
             {
