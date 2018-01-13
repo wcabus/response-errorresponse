@@ -34,7 +34,7 @@ namespace ConsoleApp2.Http
                     .ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
-                return FormResponseForJson<T>(response.StatusCode, content);
+                return CreateResponse<T>(response.StatusCode, content);
             }
             catch (Exception e)
             {
@@ -46,7 +46,7 @@ namespace ConsoleApp2.Http
             }
         }
 
-        private IResponse<T> FormResponseForJson<T>(HttpStatusCode statusCode, string json)
+        private IResponse<T> CreateResponse<T>(HttpStatusCode statusCode, string json)
         {
             try
             {
