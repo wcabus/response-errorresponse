@@ -33,16 +33,17 @@ namespace ConsoleApp2.Http
                 content = await response.Content.ReadAsStringAsync()
                     .ConfigureAwait(false);
 
-                response.EnsureSuccessStatusCode();
-                return CreateResponse<T>(response.StatusCode, content);
+                return response.IsSuccessStatusCode ? 
+                    CreateResponse<T>(response.StatusCode, content) : 
+                    CreateErrorResponse<T>(response.StatusCode, response.ReasonPhrase, originalData: content);
             }
             catch (Exception e)
             {
-                return new ErrorResponse<T>(response?.StatusCode ?? HttpStatusCode.InternalServerError, e.Message)
-                {
-                    OriginalData = content,
-                    Exception = e
-                };
+                return CreateErrorResponse<T>(
+                    response?.StatusCode ?? HttpStatusCode.InternalServerError, 
+                    e.Message, 
+                    e,
+                    content);
             }
         }
 
@@ -61,6 +62,15 @@ namespace ConsoleApp2.Http
                     Exception = e
                 };
             }
+        }
+
+        private IResponse<T> CreateErrorResponse<T>(HttpStatusCode statusCode, string error, Exception exception = null, string originalData = null)
+        {
+            return new ErrorResponse<T>(statusCode, error)
+            {
+                Exception = exception,
+                OriginalData = originalData
+            };
         }
     }
 }
